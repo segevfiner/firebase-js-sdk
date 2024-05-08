@@ -30,6 +30,7 @@ import {
 } from '../types';
 import { ApiSettings } from '../types/internal';
 import { Task } from '../requests/request';
+import { VertexAIError, VertexAIErrorCode } from '../errors';
 
 use(sinonChai);
 use(chaiAsPromised);
@@ -211,9 +212,13 @@ describe('generateContent()', () => {
       status: 400,
       json: mockResponse.json
     } as Response);
-    await expect(
-      generateContent(fakeApiSettings, 'model', fakeRequestParams)
-    ).to.be.rejectedWith(/400.*invalid argument/);
+    try {
+      await generateContent(fakeApiSettings, 'model', fakeRequestParams);
+    } catch (e) {
+      expect((e as VertexAIError).code).to.include(
+        VertexAIErrorCode.BAD_RESPONSE
+      );
+    }
     expect(mockFetch).to.be.called;
   });
 });

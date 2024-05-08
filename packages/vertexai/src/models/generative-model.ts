@@ -42,7 +42,7 @@ import {
   formatSystemInstruction
 } from '../requests/request-helpers';
 import { VertexAI } from '../public-types';
-import { ERROR_FACTORY, VertexError } from '../errors';
+import { createVertexError, VertexAIErrorCode } from '../errors';
 import { ApiSettings } from '../types/internal';
 import { VertexAIService } from '../service';
 
@@ -66,9 +66,9 @@ export class GenerativeModel {
     requestOptions?: RequestOptions
   ) {
     if (!vertexAI.app?.options?.apiKey) {
-      throw ERROR_FACTORY.create(VertexError.NO_API_KEY);
+      throw createVertexError(VertexAIErrorCode.NO_API_KEY);
     } else if (!vertexAI.app?.options?.projectId) {
-      throw ERROR_FACTORY.create(VertexError.NO_PROJECT_ID);
+      throw createVertexError(VertexAIErrorCode.NO_PROJECT_ID);
     } else {
       this._apiSettings = {
         apiKey: vertexAI.app.options.apiKey,

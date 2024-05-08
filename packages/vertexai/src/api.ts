@@ -21,7 +21,7 @@ import { getModularInstance } from '@firebase/util';
 import { DEFAULT_LOCATION, VERTEX_TYPE } from './constants';
 import { VertexAIService } from './service';
 import { VertexAI, VertexAIOptions } from './public-types';
-import { ERROR_FACTORY, VertexError } from './errors';
+import { createVertexError, VertexAIErrorCode } from './errors';
 import { ModelParams, RequestOptions } from './types';
 import { GenerativeModel } from './models/generative-model';
 
@@ -67,7 +67,7 @@ export function getGenerativeModel(
   requestOptions?: RequestOptions
 ): GenerativeModel {
   if (!modelParams.model) {
-    throw ERROR_FACTORY.create(VertexError.NO_MODEL);
+    throw createVertexError(VertexAIErrorCode.NO_MODEL);
   }
   return new GenerativeModel(vertexAI, modelParams, requestOptions);
 }

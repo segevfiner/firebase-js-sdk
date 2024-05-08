@@ -22,6 +22,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { RequestUrl, Task, getHeaders, makeRequest } from './request';
 import { ApiSettings } from '../types/internal';
 import { DEFAULT_API_VERSION } from '../constants';
+import { VertexAIError, VertexAIErrorCode } from '../errors';
 
 use(sinonChai);
 use(chaiAsPromised);
@@ -233,8 +234,8 @@ describe('request methods', () => {
         statusText: 'AbortError'
       } as Response);
 
-      await expect(
-        makeRequest(
+      try {
+        await makeRequest(
           'models/model-name',
           Task.GENERATE_CONTENT,
           fakeApiSettings,
@@ -243,8 +244,14 @@ describe('request methods', () => {
           {
             timeout: 0
           }
-        )
-      ).to.be.rejectedWith('500 AbortError');
+        );
+      } catch (e) {
+        expect((e as VertexAIError).code).to.equal(
+          'vertexAI/' + VertexAIErrorCode.BAD_RESPONSE
+        );
+        expect((e as VertexAIError).message).to.include('AbortError');
+        expect((e as VertexAIError).customData?.status).to.equal(500);
+      }
       expect(fetchStub).to.be.calledOnce;
     });
     it('Network error, no response.json()', async () => {

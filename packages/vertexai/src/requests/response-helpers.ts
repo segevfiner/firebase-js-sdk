@@ -22,7 +22,7 @@ import {
   GenerateContentCandidate,
   GenerateContentResponse
 } from '../types';
-import { ERROR_FACTORY, VertexError } from '../errors';
+import { createVertexError, VertexAIErrorCode } from '../errors';
 
 /**
  * Adds convenience helper methods to a response object, including stream
@@ -41,14 +41,14 @@ export function addHelpers(
         );
       }
       if (hadBadFinishReason(response.candidates[0])) {
-        throw ERROR_FACTORY.create(VertexError.RESPONSE_ERROR, {
+        throw createVertexError(VertexAIErrorCode.RESPONSE_ERROR, {
           message: `${formatBlockErrorMessage(response)}`,
           response
         });
       }
       return getText(response);
     } else if (response.promptFeedback) {
-      throw ERROR_FACTORY.create(VertexError.RESPONSE_ERROR, {
+      throw createVertexError(VertexAIErrorCode.RESPONSE_ERROR, {
         message: `Text not available. ${formatBlockErrorMessage(response)}`,
         response
       });
@@ -65,14 +65,14 @@ export function addHelpers(
         );
       }
       if (hadBadFinishReason(response.candidates[0])) {
-        throw ERROR_FACTORY.create(VertexError.RESPONSE_ERROR, {
+        throw createVertexError(VertexAIErrorCode.RESPONSE_ERROR, {
           message: `${formatBlockErrorMessage(response)}`,
           response
         });
       }
       return getFunctionCalls(response);
     } else if (response.promptFeedback) {
-      throw ERROR_FACTORY.create(VertexError.RESPONSE_ERROR, {
+      throw createVertexError(VertexAIErrorCode.RESPONSE_ERROR, {
         message: `Function call not available. ${formatBlockErrorMessage(
           response
         )}`,

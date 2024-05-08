@@ -16,7 +16,7 @@
  */
 
 import { Content, POSSIBLE_ROLES, Part, Role } from '../types';
-import { ERROR_FACTORY, VertexError } from '../errors';
+import { createVertexError, VertexAIErrorCode } from '../errors';
 
 // https://ai.google.dev/api/rest/v1beta/Content#part
 
@@ -48,12 +48,12 @@ export function validateChatHistory(history: Content[]): void {
   for (const currContent of history) {
     const { role, parts } = currContent;
     if (!prevContent && role !== 'user') {
-      throw ERROR_FACTORY.create(VertexError.INVALID_CONTENT, {
+      throw createVertexError(VertexAIErrorCode.INVALID_CONTENT, {
         message: `First content should be with role 'user', got ${role}`
       });
     }
     if (!POSSIBLE_ROLES.includes(role)) {
-      throw ERROR_FACTORY.create(VertexError.INVALID_CONTENT, {
+      throw createVertexError(VertexAIErrorCode.INVALID_CONTENT, {
         message: `Each item should include role field. Got ${role} but valid roles are: ${JSON.stringify(
           POSSIBLE_ROLES
         )}`
@@ -61,13 +61,13 @@ export function validateChatHistory(history: Content[]): void {
     }
 
     if (!Array.isArray(parts)) {
-      throw ERROR_FACTORY.create(VertexError.INVALID_CONTENT, {
+      throw createVertexError(VertexAIErrorCode.INVALID_CONTENT, {
         message: "Content should have 'parts' property with an array of Parts"
       });
     }
 
     if (parts.length === 0) {
-      throw ERROR_FACTORY.create(VertexError.INVALID_CONTENT, {
+      throw createVertexError(VertexAIErrorCode.INVALID_CONTENT, {
         message: 'Each Content should have at least one part'
       });
     }
@@ -89,7 +89,7 @@ export function validateChatHistory(history: Content[]): void {
     const validParts = VALID_PARTS_PER_ROLE[role];
     for (const key of VALID_PART_FIELDS) {
       if (!validParts.includes(key) && countFields[key] > 0) {
-        throw ERROR_FACTORY.create(VertexError.INVALID_CONTENT, {
+        throw createVertexError(VertexAIErrorCode.INVALID_CONTENT, {
           message: `Content with role '${role}' can't contain '${key}' part`
         });
       }
@@ -98,7 +98,7 @@ export function validateChatHistory(history: Content[]): void {
     if (prevContent) {
       const validPreviousContentRoles = VALID_PREVIOUS_CONTENT_ROLES[role];
       if (!validPreviousContentRoles.includes(prevContent.role)) {
-        throw ERROR_FACTORY.create(VertexError.INVALID_CONTENT, {
+        throw createVertexError(VertexAIErrorCode.INVALID_CONTENT, {
           message: `Content with role '${role}' can't follow '${
             prevContent.role
           }'. Valid previous roles: ${JSON.stringify(
